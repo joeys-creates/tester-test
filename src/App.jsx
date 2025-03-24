@@ -1,0 +1,1 @@
+export default function App() { return <div className='text-center p-10'>Mortgage Calculator Coming Soon</div>; }
