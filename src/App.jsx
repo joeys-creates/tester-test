@@ -43,15 +43,13 @@ export default function MortgageCalculator() {
   const downPaymentPercent = Math.round((downPayment / homePrice) * 100);
 
   const handlePercentChange = (e) => {
-    const raw = e.target.value;
-    const percent = raw === "" ? 0 : parseInt(raw.replace(/^0+(?=\d)/, ""));
-    setDownPaymentPercentInput(raw);
+    const percent = parseInt(e.target.value);
+    setDownPaymentPercentInput(percent);
     setDownPayment(Math.round((percent / 100) * homePrice));
   };
 
   const handleNumberInput = (setter, onEdit = null) => (e) => {
-    const raw = e.target.value;
-    const value = raw === "" ? 0 : parseInt(raw.replace(/^0+(?=\d)/, ""));
+    const value = parseInt(e.target.value);
     setter(value);
     if (onEdit) onEdit(true);
   };
@@ -62,39 +60,39 @@ export default function MortgageCalculator() {
         <h1 style={{ textAlign: 'center' }}>Mortgage Calculator</h1>
 
         <label>Home Price ($)</label>
-        <input type="number" value={homePrice} onChange={(e) => {
+        <input type="range" min={50000} max={2000000} step={10000} value={homePrice} onChange={(e) => {
           const val = parseInt(e.target.value);
           setHomePrice(val);
           if (usePercentDownPayment) {
             const percent = parseFloat(downPaymentPercentInput) || 0;
             setDownPayment(Math.round((percent / 100) * val));
           }
-        }} style={{ width: '100%', padding: '8px', marginBottom: '1rem' }} />
+        }} style={{ width: '100%', marginBottom: '0.5rem' }} />
+        <div style={{ marginBottom: '1rem' }}>${formatNumber(homePrice)}</div>
 
-        <label>Down Payment ({usePercentDownPayment ? `${downPaymentPercent}%` : `$${formatNumber(downPayment)}`})</label>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <label>%</label>
-          <input type="checkbox" checked={!usePercentDownPayment} onChange={() => setUsePercentDownPayment(!usePercentDownPayment)} />
-          <label>$</label>
+        <label>Down Payment ({usePercentDownPayment ? `${downPaymentPercentInput}%` : `$${formatNumber(downPayment)}`})</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+          <button onClick={() => setUsePercentDownPayment(true)} style={{ backgroundColor: usePercentDownPayment ? '#ccc' : '#fff', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>%</button>
+          <button onClick={() => setUsePercentDownPayment(false)} style={{ backgroundColor: !usePercentDownPayment ? '#ccc' : '#fff', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>$</button>
         </div>
         {usePercentDownPayment ? (
-          <input type="number" value={downPaymentPercentInput} onChange={handlePercentChange} style={{ width: '100%', padding: '8px', marginBottom: '1rem' }} />
+          <input type="range" min={0} max={100} step={1} value={downPaymentPercentInput} onChange={handlePercentChange} style={{ width: '100%', marginBottom: '1rem' }} />
         ) : (
-          <input type="number" value={downPayment} onChange={(e) => {
-            const val = parseInt(e.target.value);
-            setDownPayment(val);
-          }} style={{ width: '100%', padding: '8px', marginBottom: '1rem' }} />
+          <input type="number" value={downPayment} onChange={(e) => setDownPayment(parseInt(e.target.value))} style={{ width: '100%', padding: '8px', marginBottom: '1rem' }} />
         )}
 
-        <label>Loan Term (years)</label>
-        <input type="number" value={loanTerm} onChange={(e) => setLoanTerm(parseInt(e.target.value))} style={{ width: '100%', padding: '8px', marginBottom: '1rem' }} />
+        <label>Loan Term (years): {loanTerm}</label>
+        <input type="range" min={5} max={40} step={1} value={loanTerm} onChange={(e) => setLoanTerm(parseInt(e.target.value))} style={{ width: '100%', marginBottom: '1rem' }} />
 
-        <label>Interest Rate (%)</label>
-        <input type="number" value={interestRate} step={0.01} onChange={(e) => setInterestRate(parseFloat(e.target.value))} style={{ width: '100%', padding: '8px', marginBottom: '1rem' }} />
+        <label>Interest Rate (%): {interestRate}</label>
+        <input type="range" min={1} max={15} step={0.1} value={interestRate} onChange={(e) => setInterestRate(parseFloat(e.target.value))} style={{ width: '100%', marginBottom: '1rem' }} />
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <label>Include Taxes & Insurance</label>
-          <input type="checkbox" checked={includeTaxes} onChange={(e) => setIncludeTaxes(e.target.checked)} />
+          <label className="switch">
+            <input type="checkbox" checked={includeTaxes} onChange={(e) => setIncludeTaxes(e.target.checked)} />
+            <span className="slider round"></span>
+          </label>
         </div>
 
         {includeTaxes && (
